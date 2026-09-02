@@ -32,17 +32,67 @@ void showStack()
     }
 }
 
+/* Display input with i shown as id */
+void showInput(char input[], int pos)
+{
+    int i;
+
+    for (i = pos; input[i] != '\0'; i++)
+    {
+        if (input[i] == 'i')
+            printf("id");
+        else
+            printf("%c", input[i]);
+    }
+}
+
+/* Find displayed input length */
+int inputLength(char input[], int pos)
+{
+    int i;
+    int length = 0;
+
+    for (i = pos; input[i] != '\0'; i++)
+    {
+        if (input[i] == 'i')
+            length += 2;
+        else
+            length++;
+    }
+
+    return length;
+}
+
 /* Display one parsing step */
 void showStep(char input[], int pos, char action[])
 {
-    printf("| ");
+    int stackLength = 0;
+    int inputLen;
+
+    /* Calculate displayed stack length */
+    int i;
+    for (i = 0; i <= top; i++)
+    {
+        if (stack[i] == 'i')
+            stackLength += 2;
+        else
+            stackLength++;
+    }
+
+    /* Display stack */
     showStack();
 
-    printf("%*s | ", 15 - top, "");
+    /* Space between columns */
+    printf("%*s", 15 - stackLength, "");
 
-    printf("%s", &input[pos]);
+    /* Display input */
+    showInput(input, pos);
 
-    printf("%*s | ", 15 - (int)strlen(&input[pos]), "");
+    /* Calculate displayed input length */
+    inputLen = inputLength(input, pos);
+
+    /* Space before action */
+    printf("%*s", 15 - inputLen, "");
 
     printf("%s\n", action);
 }
@@ -66,6 +116,7 @@ int reduce(char input[], int pos)
     {
         pop(3);
         push('F');
+
         showStep(input, pos, "REDUCE F -> (E)");
         return 1;
     }
@@ -78,6 +129,7 @@ int reduce(char input[], int pos)
     {
         pop(3);
         push('T');
+
         showStep(input, pos, "REDUCE T -> T*F");
         return 1;
     }
@@ -90,6 +142,7 @@ int reduce(char input[], int pos)
     {
         pop(3);
         push('E');
+
         showStep(input, pos, "REDUCE E -> E+T");
         return 1;
     }
@@ -98,6 +151,7 @@ int reduce(char input[], int pos)
     if (top >= 0 && stack[top] == 'F')
     {
         stack[top] = 'T';
+
         showStep(input, pos, "REDUCE T -> F");
         return 1;
     }
@@ -111,6 +165,7 @@ int reduce(char input[], int pos)
         input[pos] != '*')
     {
         stack[top] = 'E';
+
         showStep(input, pos, "REDUCE E -> T");
         return 1;
     }
@@ -128,7 +183,7 @@ int main()
     int valid = 1;
 
     printf("=====================================================\n");
-    printf(" SHIFT-REDUCE PARSER\n");
+    printf("              SHIFT-REDUCE PARSER\n");
     printf("=====================================================\n\n");
 
     printf("GRAMMAR:\n");
@@ -141,8 +196,9 @@ int main()
 
     /*
        Convert id into single symbol 'i'.
+
        Example:
-       id+id*id -> i+i*i
+       id*id -> i*i
     */
     j = 0;
 
@@ -166,14 +222,12 @@ int main()
     push('$');
 
     printf("\n-----------------------------------------------------\n");
-    printf("| STACK | INPUT | ACTION |\n");
+    printf("STACK          INPUT          ACTION\n");
     printf("-----------------------------------------------------\n");
 
     while (input[pos] != '$')
     {
-        /*
-           Check whether input is id
-        */
+        /* Check whether input is id */
         if (input[pos] == 'i')
         {
             push('i');
@@ -182,9 +236,7 @@ int main()
             showStep(input, pos, "SHIFT id");
         }
 
-        /*
-           Check operators and parentheses
-        */
+        /* Check operators and parentheses */
         else if (input[pos] == '+' ||
                  input[pos] == '*' ||
                  input[pos] == '(' ||
@@ -205,27 +257,21 @@ int main()
                 showStep(input, pos, "SHIFT )");
         }
 
-        /*
-           Invalid character
-        */
+        /* Invalid character */
         else
         {
             valid = 0;
             break;
         }
 
-        /*
-           Perform all possible reductions
-        */
+        /* Perform all possible reductions */
         while (reduce(input, pos))
         {
             /* Continue reducing */
         }
     }
 
-    /*
-       Perform final reductions
-    */
+    /* Perform final reductions */
     while (reduce(input, pos))
     {
         /* Continue reducing */
@@ -233,9 +279,7 @@ int main()
 
     printf("-----------------------------------------------------\n");
 
-    /*
-       Acceptance condition
-    */
+    /* Acceptance condition */
     if (valid &&
         input[pos] == '$' &&
         top == 1 &&
