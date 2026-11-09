@@ -23,7 +23,7 @@
         printf("Constant: %s\n",yytext);
 }
 
-[\t\n]+ ;
+[ \t\n]+ ;
 
 . {
         printf("Unknown: %s\n",yytext);
