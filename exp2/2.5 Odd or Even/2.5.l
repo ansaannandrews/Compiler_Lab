@@ -11,7 +11,7 @@
 	else
 		printf("Odd Number\n");
 }
-\n { }
+\n {return 0; }
 . { }
 %%
 
