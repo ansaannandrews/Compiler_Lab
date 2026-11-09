@@ -19,7 +19,7 @@ int yywrap() {
 }
 
 int main() {
-	printf("Enter the string: ");
+	printf("Enter the text: ");
 	yylex();
 	return 0;
 }
